@@ -1,0 +1,61 @@
+<html>
+<head>
+    <style>
+        .consent { padding: 1rem; border: 1px solid #D0D2D7; border-radius: 6px; }
+        .consent p { margin: 0 0 1rem; }
+        .buttons { display: flex; gap: .5rem; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="consent">
+        <!-- Adapt this text: who collects what, where and why -->
+        <div id="question">
+            <p>
+                <strong>Do you agree to share your reading statistics?</strong>
+            </p>
+            <p>
+                To improve this ePoc, the author would like to know which contents are viewed
+                and how questions are answered. The data is anonymous: no name, no email,
+                only a random identifier created on your device.
+                You can change your mind at any time from this page.
+            </p>
+            <div class="buttons">
+                <button onclick="answer(true)">I agree</button>
+                <button onclick="answer(false)">I refuse</button>
+            </div>
+        </div>
+
+        <div id="answer" class="hidden">
+            <p id="status"></p>
+            <button onclick="showQuestion()">Change my mind</button>
+        </div>
+    </div>
+
+    <script>
+        function answer(value) {
+            plugin.emit('consent', { event: 'consent', value: value });
+        }
+
+        function showQuestion() {
+            document.getElementById('question').classList.remove('hidden');
+            document.getElementById('answer').classList.add('hidden');
+        }
+
+        plugin.receive = (data) => {
+            if (data.event !== 'consent-state') return;
+
+            if (data.consent === null) {
+                showQuestion();
+                return;
+            }
+
+            document.getElementById('status').textContent = data.consent
+                ? 'Thank you! You are sharing your reading statistics anonymously.'
+                : 'You refused: no data is sent.';
+            document.getElementById('question').classList.add('hidden');
+            document.getElementById('answer').classList.remove('hidden');
+        };
+    </script>
+</body>
+</html>
